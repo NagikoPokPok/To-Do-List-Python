@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ cá nhân - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-person-circle text-primary me-2"></i>Hồ sơ cá nhân
+                </h4>
+                <p class="text-muted mb-0">Thông tin tài khoản của bạn</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-4">
+                        <div class="rounded-circle bg-danger bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="bi bi-person-fill text-danger" style="font-size: 3rem;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên đăng nhập</label>
+                            <p class="form-control-plaintext">{{ user.username }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <p class="form-control-plaintext">{{ user.email }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và tên</label>
+                            <p class="form-control-plaintext">{{ user.full_name or 'Chưa cập nhật' }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày tham gia</label>
+                            <p class="form-control-plaintext">{{ user.created_at.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="/dashboard" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Quay lại Dashboard
+                    </a>
+                    <button type="button" class="btn btn-danger" disabled>
+                        <i class="bi bi-pencil me-2"></i>Chỉnh sửa (Sắp có)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh sửa công việc - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <div class="d-flex align-items-center">
+                    <a href="/tasks" class="btn btn-sm btn-outline-secondary me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-pencil text-primary me-2"></i>Chỉnh sửa công việc
+                        </h4>
+                        <p class="text-muted mb-0">Cập nhật thông tin công việc "{{ task.title }}"</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" action="/tasks/{{ task.id }}/edit" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">
+                                    Tiêu đề công việc <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="title" 
+                                    name="title" 
+                                    value="{{ task.title }}"
+                                    placeholder="Ví dụ: Hoàn thành báo cáo tháng..."
+                                    required
+                                    maxlength="200"
+                                >
+                                <div class="invalid-feedback">
+                                    Vui lòng nhập tiêu đề công việc.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Trạng thái</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>
+                                        <i class="bi bi-circle"></i> Chưa hoàn thành
+                                    </option>
+                                    <option value="done" {% if task.status == 'done' %}selected{% endif %}>
+                                        <i class="bi bi-check-circle"></i> Đã hoàn thành
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="subject_id" class="form-label">
+                                    Chủ đề <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="subject_id" name="subject_id" required>
+                                    <option value="">Chọn chủ đề</option>
+                                    {% for subject in subjects %}
+                                    <option value="{{ subject.id }}" {% if subject.id == task.subject_id %}selected{% endif %}>
+                                        {{ subject.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Vui lòng chọn chủ đề.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="label_id" class="form-label">Nhãn</label>
+                                <select class="form-select" id="label_id" name="label_id">
+                                    <option value="">Không có nhãn</option>
+                                    {% for label in labels %}
+                                    <option value="{{ label.id }}" 
+                                            data-color="{{ label.color }}"
+                                            {% if label.id == task.label_id %}selected{% endif %}>
+                                        {{ label.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="note" class="form-label">Ghi chú</label>
+                        <textarea 
+                            class="form-control" 
+                            id="note" 
+                            name="note" 
+                            rows="3"
+                            placeholder="Mô tả chi tiết về công việc (không bắt buộc)"
+                            maxlength="1000"
+                        >{{ task.note or '' }}</textarea>
+                        <div class="form-text">
+                            Ghi chú giúp bạn nhớ rõ hơn về yêu cầu và chi tiết của công việc.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="due_date" class="form-label">Hạn chót</label>
+                        <input 
+                            type="datetime-local" 
+                            class="form-control" 
+                            id="due_date" 
+                            name="due_date"
+                            {% if task.due_date %}
+                            value="{{ task.due_date.strftime('%Y-%m-%dT%H:%M') }}"
+                            {% endif %}
+                        >
+                        <div class="form-text">
+                            Đặt thời gian hoàn thành để theo dõi tiến độ.
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/tasks" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Cập nhật công việc
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Thông tin bổ sung -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-info-circle text-info me-2"></i>Thông tin bổ sung
+                </h6>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Ngày tạo</small>
+                        <strong>{{ task.created_at.strftime('%d/%m/%Y %H:%M') }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Lần cập nhật cuối</small>
+                        <strong>{{ task.updated_at.strftime('%d/%m/%Y %H:%M') }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Chủ đề hiện tại</small>
+                        <strong>{{ task.subject.name }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Label preview
+    const labelSelect = document.getElementById('label_id');
+    const selectedOption = labelSelect.options[labelSelect.selectedIndex];
+    
+    if (selectedOption && selectedOption.dataset.color) {
+        // Có thể thêm preview logic ở đây nếu cần
+    }
+});
+</script>
+{% endblock %}

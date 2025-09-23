@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo công việc mới - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <div class="d-flex align-items-center">
+                    <a href="/tasks" class="btn btn-sm btn-outline-secondary me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-plus-circle text-danger me-2"></i>Tạo công việc mới
+                        </h4>
+                        <p class="text-muted mb-0">Thêm công việc vào danh sách quản lý</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <form method="post" action="/tasks/create" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">
+                                    Tiêu đề công việc <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="title" 
+                                    name="title" 
+                                    placeholder="Ví dụ: Hoàn thành báo cáo tháng..."
+                                    required
+                                    maxlength="200"
+                                >
+                                <div class="invalid-feedback">
+                                    Vui lòng nhập tiêu đề công việc.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="subject_id" class="form-label">
+                                    Chủ đề <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="subject_id" name="subject_id" required>
+                                    <option value="">Chọn chủ đề</option>
+                                    {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Vui lòng chọn chủ đề.
+                                </div>
+                                {% if not subjects %}
+                                <div class="form-text text-warning">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    Bạn cần tạo chủ đề trước. 
+                                    <a href="/subjects/create" class="text-decoration-none">Tạo ngay</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="note" class="form-label">Ghi chú</label>
+                        <textarea 
+                            class="form-control" 
+                            id="note" 
+                            name="note" 
+                            rows="3"
+                            placeholder="Mô tả chi tiết về công việc (không bắt buộc)"
+                            maxlength="1000"
+                        ></textarea>
+                        <div class="form-text">
+                            Ghi chú giúp bạn nhớ rõ hơn về yêu cầu và chi tiết của công việc.
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="due_date" class="form-label">Hạn chót</label>
+                                <input 
+                                    type="datetime-local" 
+                                    class="form-control" 
+                                    id="due_date" 
+                                    name="due_date"
+                                >
+                                <div class="form-text">
+                                    Đặt thời gian hoàn thành để theo dõi tiến độ.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="label_id" class="form-label">Nhãn</label>
+                                <select class="form-select" id="label_id" name="label_id">
+                                    <option value="">Không có nhãn</option>
+                                    {% for label in labels %}
+                                    <option value="{{ label.id }}" data-color="{{ label.color }}">
+                                        {{ label.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if not labels %}
+                                <div class="form-text">
+                                    Chưa có nhãn. 
+                                    <a href="/labels/create" class="text-decoration-none">Tạo nhãn mới</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/tasks" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-danger" {% if not subjects %}disabled{% endif %}>
+                            <i class="bi bi-plus-circle me-2"></i>Tạo công việc
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Preview nhãn được chọn -->
+        <div class="card border-0 shadow-sm mt-4" id="label-preview" style="display: none;">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-eye text-info me-2"></i>Xem trước nhãn
+                </h6>
+                <div id="label-preview-content"></div>
+            </div>
+        </div>
+
+        <!-- Gợi ý công việc -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightbulb text-warning me-2"></i>Gợi ý công việc
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action border-0 suggestion-btn" 
+                                    data-title="Kiểm tra email" data-note="Đọc và trả lời email quan trọng">
+                                <i class="bi bi-envelope me-2 text-primary"></i>Kiểm tra email
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action border-0 suggestion-btn" 
+                                    data-title="Họp team weekly" data-note="Cuộc họp hàng tuần với team">
+                                <i class="bi bi-people me-2 text-success"></i>Họp team weekly
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action border-0 suggestion-btn" 
+                                    data-title="Viết báo cáo" data-note="Hoàn thành báo cáo công việc">
+                                <i class="bi bi-file-earmark-text me-2 text-info"></i>Viết báo cáo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action border-0 suggestion-btn" 
+                                    data-title="Đi mua sắm" data-note="Mua thực phẩm và đồ dùng cần thiết">
+                                <i class="bi bi-cart me-2 text-warning"></i>Đi mua sắm
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action border-0 suggestion-btn" 
+                                    data-title="Tập thể dục" data-note="Tập gym hoặc chạy bộ 30 phút">
+                                <i class="bi bi-heart me-2 text-danger"></i>Tập thể dục
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action border-0 suggestion-btn" 
+                                    data-title="Học ngoại ngữ" data-note="Học từ vựng và ngữ pháp mới">
+                                <i class="bi bi-book me-2 text-secondary"></i>Học ngoại ngữ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-text mt-2">
+                    Nhấp vào gợi ý để tự động điền thông tin.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const noteInput = document.getElementById('note');
+    const labelSelect = document.getElementById('label_id');
+    const labelPreview = document.getElementById('label-preview');
+    const labelPreviewContent = document.getElementById('label-preview-content');
+    const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+    
+    // Xử lý gợi ý
+    suggestionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const title = this.getAttribute('data-title');
+            const note = this.getAttribute('data-note');
+            
+            titleInput.value = title;
+            noteInput.value = note;
+            
+            titleInput.focus();
+            titleInput.select();
+        });
+    });
+    
+    // Preview nhãn
+    labelSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value && selectedOption.dataset.color) {
+            const color = selectedOption.dataset.color;
+            const name = selectedOption.text;
+            
+            labelPreviewContent.innerHTML = `
+                <span class="badge rounded-pill" style="background-color: ${color}; color: white; font-size: 0.9rem;">
+                    ${name}
+                </span>
+                <span class="text-muted ms-2">Nhãn được chọn</span>
+            `;
+            labelPreview.style.display = 'block';
+        } else {
+            labelPreview.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

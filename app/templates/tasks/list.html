@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý công việc - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-list-task text-primary me-2"></i>Quản lý công việc
+                </h1>
+                <p class="text-muted mb-0">Tổ chức và theo dõi tiến độ công việc</p>
+            </div>
+            <div>
+                <a href="/tasks/create" class="btn btn-danger">
+                    <i class="bi bi-plus-circle me-2"></i>Tạo công việc mới
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <form method="get" action="/tasks" class="row g-3">
+            <div class="col-md-3">
+                <label for="search" class="form-label fw-medium">Tìm kiếm</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 ps-0" id="search" name="search" 
+                           value="{{ filters.search or '' }}" placeholder="Nhập từ khóa...">
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="status" class="form-label fw-medium">Trạng thái</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">Tất cả</option>
+                    <option value="todo" {% if filters.status == 'todo' %}selected{% endif %}>Chưa xong</option>
+                    <option value="done" {% if filters.status == 'done' %}selected{% endif %}>Hoàn thành</option>
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="subject_id" class="form-label fw-medium">Chủ đề</label>
+                <select class="form-select" id="subject_id" name="subject_id">
+                    <option value="">Tất cả</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}" {% if filters.subject_id == subject.id %}selected{% endif %}>
+                        {{ subject.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="label_id" class="form-label fw-medium">Nhãn</label>
+                <select class="form-select" id="label_id" name="label_id">
+                    <option value="">Tất cả</option>
+                    {% for label in labels %}
+                    <option value="{{ label.id }}" {% if filters.label_id == label.id %}selected{% endif %}>
+                        {{ label.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-2"></i>Tìm kiếm
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="mt-4">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/tasks?due_today=true" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-calendar-date me-1"></i>Đến hạn hôm nay
+                </a>
+                <a href="/tasks?overdue=true" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-exclamation-triangle me-1"></i>Quá hạn
+                </a>
+                <a href="/tasks" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Xóa bộ lọc
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tasks List -->
+{% if tasks %}
+<div class="row">
+    {% for task in tasks %}
+    <div class="col-12 mb-3">
+        <div class="card border-0 shadow-sm task-item hover-card {% if task.status == 'done' %}completed{% endif %}"
+             data-status="{{ task.status }}" 
+             data-subject-id="{{ task.subject_id }}"
+             data-label-id="{{ task.label_id or '' }}">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-start">
+                            <form method="post" action="/tasks/{{ task.id }}/toggle" class="me-3">
+                                <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent task-toggle-btn">
+                                    {% if task.status == 'done' %}
+                                    <i class="bi bi-check-circle-fill text-success" style="font-size: 1.3rem;"></i>
+                                    {% else %}
+                                    <i class="bi bi-circle text-muted" style="font-size: 1.3rem;"></i>
+                                    {% endif %}
+                                </button>
+                            </form>
+                            
+                            <div class="flex-grow-1">
+                                <h6 class="task-title mb-2 {% if task.status == 'done' %}text-decoration-line-through text-muted{% endif %}">
+                                    {{ task.title }}
+                                </h6>
+                                {% if task.note %}
+                                <p class="task-note text-muted mb-2 small">{{ task.note }}</p>
+                                {% endif %}
+                                <div class="d-flex align-items-center gap-3 small text-muted">
+                                    <span class="d-flex align-items-center">
+                                        <i class="bi bi-folder2 me-1"></i>{{ task.subject.name }}
+                                    </span>
+                                    {% if task.due_date %}
+                                    <span class="d-flex align-items-center">
+                                        <i class="bi bi-calendar3 me-1"></i>{{ task.due_date.strftime('%d/%m/%Y %H:%M') }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                {% if task.label %}
+                                <span class="badge rounded-pill px-3 py-2" style="background-color: {{ task.label.color }}; color: white;">
+                                    <i class="bi bi-tag me-1"></i>{{ task.label.name }}
+                                </span>
+                                {% endif %}
+                                
+                                {% if task.status == 'todo' %}
+                                <span class="badge bg-warning text-dark px-3 py-2">
+                                    <i class="bi bi-clock me-1"></i>Chưa xong
+                                </span>
+                                {% else %}
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="bi bi-check-circle me-1"></i>Hoàn thành
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" href="/tasks/{{ task.id }}/edit">
+                                            <i class="bi bi-pencil me-2 text-primary"></i>Chỉnh sửa
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <form method="post" action="/tasks/{{ task.id }}/toggle" class="d-inline">
+                                            <button type="submit" class="dropdown-item d-flex align-items-center">
+                                                {% if task.status == 'todo' %}
+                                                <i class="bi bi-check-circle me-2 text-success"></i>Đánh dấu hoàn thành
+                                                {% else %}
+                                                <i class="bi bi-arrow-clockwise me-2 text-warning"></i>Đánh dấu chưa xong
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="/tasks/{{ task.id }}/delete" class="d-inline">
+                                            <button type="submit" class="dropdown-item text-danger delete-task d-flex align-items-center">
+                                                <i class="bi bi-trash me-2"></i>Xóa
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<!-- Empty state -->
+<div class="row">
+    <div class="col-12">
+        <div class="text-center py-5">
+            {% if filters.search or filters.status or filters.subject_id or filters.label_id %}
+            <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-4 mb-3">Không tìm thấy công việc nào</h4>
+            <p class="text-muted mb-4">
+                Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.
+            </p>
+            <a href="/tasks" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-clockwise me-2"></i>Xóa bộ lọc
+            </a>
+            {% else %}
+            <i class="bi bi-list-task text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-4 mb-3">Chưa có công việc nào</h4>
+            <p class="text-muted mb-4">
+                Tạo công việc đầu tiên để bắt đầu quản lý thời gian hiệu quả.<br>
+                Bạn có thể phân loại công việc theo chủ đề và nhãn.
+            </p>
+            <a href="/tasks/create" class="btn btn-danger btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Tạo công việc đầu tiên
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý nhãn - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-tags-fill text-info me-2"></i>Quản lý nhãn
+                </h1>
+                <p class="text-muted mb-0">Tạo và quản lý nhãn để phân loại công việc</p>
+            </div>
+            <div>
+                <a href="/labels/create" class="btn btn-danger">
+                    <i class="bi bi-plus-circle me-2"></i>Tạo nhãn mới
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if labels %}
+<div class="row">
+    {% for label in labels %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 border-0 shadow-sm hover-card">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="label-preview me-3 rounded-circle border border-white shadow-sm" style="background-color: '{{ label.color }}'; width: 24px; height: 24px;"></div>
+                        <span class="badge rounded-pill px-3 py-2" style="background-color: '{{ label.color }}'; color: white; font-size: 0.875rem; font-weight: 500;">
+                            {{ label.name }}
+                        </span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="/labels/{{ label.id }}/edit">
+                                    <i class="bi bi-pencil me-2 text-primary"></i>Chỉnh sửa
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="/tasks?label_id={{ label.id }}">
+                                    <i class="bi bi-list-task me-2 text-info"></i>Xem công việc
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="/labels/{{ label.id }}/delete" class="d-inline">
+                                    <button type="submit" class="dropdown-item text-danger delete-label d-flex align-items-center">
+                                        <i class="bi bi-trash me-2"></i>Xóa
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <small class="text-muted d-flex align-items-center">
+                        <i class="bi bi-calendar3 me-2"></i>
+                        {{ label.created_at.strftime('%d/%m/%Y') }}
+                    </small>
+                    <div>
+                        <span class="badge bg-light text-dark border">
+                            <i class="bi bi-list-task me-1"></i>
+                            {{ label.tasks|length }} công việc
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-tags text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-4 mb-3">Chưa có nhãn nào</h4>
+            <p class="text-muted mb-4">
+                Tạo nhãn để phân loại và tổ chức công việc tốt hơn.<br>
+                Mỗi nhãn có thể có màu sắc riêng để dễ nhận biết.
+            </p>
+            <a href="/labels/create" class="btn btn-danger btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Tạo nhãn đầu tiên
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

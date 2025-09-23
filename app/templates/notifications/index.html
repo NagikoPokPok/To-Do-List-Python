@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Thông báo - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-bell-fill text-warning me-2"></i>Thông báo nhắc việc
+                </h1>
+                <p class="text-muted mb-0">Theo dõi công việc đến hạn và quá hạn</p>
+            </div>
+            <div>
+                <a href="/tasks" class="btn btn-outline-primary">
+                    <i class="bi bi-list-task me-2"></i>Xem tất cả công việc
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mb-4">
+    <div class="col-lg-4 mb-3">
+        <div class="card border-0 shadow-sm stat-card-wrapper">
+            <div class="card-body text-center p-4">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="rounded-circle bg-warning bg-opacity-15 p-3">
+                        <i class="bi bi-calendar-date text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-2 text-warning">{{ due_today_tasks|length }}</h3>
+                <p class="text-muted mb-0 fw-medium">Đến hạn hôm nay</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="card border-0 shadow-sm stat-card-wrapper">
+            <div class="card-body text-center p-4">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="rounded-circle bg-info bg-opacity-15 p-3">
+                        <i class="bi bi-clock text-info" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-2 text-info">{{ recent_overdue_tasks|length }}</h3>
+                <p class="text-muted mb-0 fw-medium">Quá hạn gần đây</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="card border-0 shadow-sm stat-card-wrapper">
+            <div class="card-body text-center p-4">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="rounded-circle bg-danger bg-opacity-15 p-3">
+                        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-2 text-danger">{{ overdue_tasks|length }}</h3>
+                <p class="text-muted mb-0 fw-medium">Quá hạn ≥ 3 ngày</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Due Today Tasks -->
+{% if due_today_tasks %}
+<div class="card border-0 shadow-sm mb-4 border-start border-warning border-3">
+    <div class="card-header bg-transparent border-0 py-3">
+        <h5 class="card-title mb-0 d-flex align-items-center">
+            <i class="bi bi-calendar-date text-warning me-2"></i>
+            Công việc đến hạn hôm nay
+            <span class="badge bg-warning text-dark ms-2">{{ due_today_tasks|length }}</span>
+        </h5>
+    </div>
+    <div class="card-body">
+        {% for task in due_today_tasks %}
+        <div class="d-flex align-items-center justify-content-between p-3 border rounded-3 mb-3 task-item bg-light">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-circle text-warning me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                    <h6 class="mb-1 fw-semibold">{{ task.title }}</h6>
+                    <div class="d-flex align-items-center gap-3 small text-muted">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-folder me-1"></i>{{ task.subject.name }}
+                        </span>
+                        {% if task.due_date %}
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-clock me-1"></i>{{ task.due_date.strftime('%H:%M') }}
+                        </span>
+                        {% endif %}
+                        {% if task.label %}
+                        <span class="badge rounded-pill" style="background-color: {{ task.label.color }}; color: white;">
+                            {{ task.label.name }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/tasks/{{ task.id }}/edit" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <form method="post" action="/tasks/{{ task.id }}/toggle" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="Đánh dấu hoàn thành">
+                        <i class="bi bi-check"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Overdue Tasks -->
+{% if recent_overdue_tasks %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-clock text-info me-2"></i>
+            Công việc quá hạn gần đây ({{ recent_overdue_tasks|length }})
+        </h5>
+    </div>
+    <div class="card-body">
+        {% for task in recent_overdue_tasks %}
+        <div class="d-flex align-items-center justify-content-between p-3 border rounded mb-2 bg-light">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-circle text-info me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                    <h6 class="mb-1">{{ task.title }}</h6>
+                    <div class="d-flex align-items-center gap-3 small text-muted">
+                        <span>
+                            <i class="bi bi-folder me-1"></i>{{ task.subject.name }}
+                        </span>
+                        {% if task.due_date %}
+                        <span class="text-warning">
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            Quá hạn {{ (now - task.due_date).days }} ngày
+                        </span>
+                        {% endif %}
+                        {% if task.label %}
+                        <span class="badge rounded-pill" style="background-color: {{ task.label.color }}; color: white;">
+                            {{ task.label.name }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/tasks/{{ task.id }}/edit" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <form method="post" action="/tasks/{{ task.id }}/toggle" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="Đánh dấu hoàn thành">
+                        <i class="bi bi-check"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Overdue Tasks (>= 3 days) -->
+{% if overdue_tasks %}
+<div class="card border-0 shadow-sm mb-4 border-danger">
+    <div class="card-header bg-danger bg-opacity-10 border-0">
+        <h5 class="card-title mb-0 text-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Công việc quá hạn nghiêm trọng (≥ 3 ngày) - {{ overdue_tasks|length }}
+        </h5>
+    </div>
+    <div class="card-body">
+        {% for task in overdue_tasks %}
+        <div class="d-flex align-items-center justify-content-between p-3 border border-danger rounded mb-2 bg-danger bg-opacity-5">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-circle text-danger me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                    <h6 class="mb-1 text-danger">{{ task.title }}</h6>
+                    <div class="d-flex align-items-center gap-3 small">
+                        <span class="text-muted">
+                            <i class="bi bi-folder me-1"></i>{{ task.subject.name }}
+                        </span>
+                        {% if task.due_date %}
+                        <span class="text-danger fw-bold">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Quá hạn {{ (now - task.due_date).days }} ngày
+                        </span>
+                        {% endif %}
+                        {% if task.label %}
+                        <span class="badge rounded-pill" style="background-color: {{ task.label.color }}; color: white;">
+                            {{ task.label.name }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/tasks/{{ task.id }}/edit" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <form method="post" action="/tasks/{{ task.id }}/toggle" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="Đánh dấu hoàn thành">
+                        <i class="bi bi-check"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- No notifications -->
+{% if not due_today_tasks and not recent_overdue_tasks and not overdue_tasks %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+            <h4 class="mt-4 mb-3 text-success">Tuyệt vời! Không có thông báo gấp</h4>
+            <p class="text-muted mb-4">
+                Bạn đã hoàn thành tốt các công việc.<br>
+                Không có công việc nào đến hạn hoặc quá hạn.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/tasks/create" class="btn btn-danger">
+                    <i class="bi bi-plus-circle me-2"></i>Tạo công việc mới
+                </a>
+                <a href="/tasks" class="btn btn-outline-primary">
+                    <i class="bi bi-list-task me-2"></i>Xem tất cả công việc
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

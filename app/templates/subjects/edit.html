@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh sửa chủ đề - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <div class="d-flex align-items-center">
+                    <a href="/subjects" class="btn btn-sm btn-outline-secondary me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-pencil text-primary me-2"></i>Chỉnh sửa chủ đề
+                        </h4>
+                        <p class="text-muted mb-0">Cập nhật thông tin chủ đề</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <form method="post" action="/subjects/{{ subject.id }}/edit" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            Tên chủ đề <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="name" 
+                            name="name" 
+                            value="{{ subject.name }}"
+                            placeholder="Ví dụ: Công việc, Học tập, Cá nhân..."
+                            required
+                            maxlength="100"
+                        >
+                        <div class="invalid-feedback">
+                            Vui lòng nhập tên chủ đề.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <textarea 
+                            class="form-control" 
+                            id="description" 
+                            name="description" 
+                            rows="3"
+                            placeholder="Mô tả chi tiết về chủ đề này (không bắt buộc)"
+                            maxlength="500"
+                        >{{ subject.description or '' }}</textarea>
+                        <div class="form-text">
+                            Mô tả giúp bạn hiểu rõ hơn về mục đích của chủ đề.
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/subjects" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check-circle me-2"></i>Cập nhật
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Thông tin thêm về chủ đề -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-info-circle text-info me-2"></i>Thông tin chủ đề
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-calendar text-muted me-2"></i>
+                            <span class="text-muted">Tạo ngày:</span>
+                            <span class="ms-2">{{ subject.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-list-task text-muted me-2"></i>
+                            <span class="text-muted">Số công việc:</span>
+                            <span class="badge bg-primary ms-2">{{ subject.tasks|length }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if subject.updated_at %}
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-pencil text-muted me-2"></i>
+                    <span class="text-muted">Cập nhật lần cuối:</span>
+                    <span class="ms-2">{{ subject.updated_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Danh sách task trong chủ đề -->
+        {% if subject.tasks %}
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-list-task text-success me-2"></i>Công việc trong chủ đề
+                    </h6>
+                    <a href="/tasks?subject_id={{ subject.id }}" class="btn btn-sm btn-outline-primary">
+                        Xem tất cả
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for task in subject.tasks[:5] %}
+                    <div class="list-group-item border-0 px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if task.status == 'done' %}
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                {% else %}
+                                <i class="bi bi-circle text-muted me-2"></i>
+                                {% endif %}
+                                <span class="{% if task.status == 'done' %}text-decoration-line-through text-muted{% endif %}">
+                                    {{ task.title }}
+                                </span>
+                            </div>
+                            <div>
+                                {% if task.status == 'todo' %}
+                                <span class="badge bg-warning text-dark">Chưa xong</span>
+                                {% else %}
+                                <span class="badge bg-success">Hoàn thành</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if subject.tasks|length > 5 %}
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Và {{ subject.tasks|length - 5 }} công việc khác...
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

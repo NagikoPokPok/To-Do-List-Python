@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh sửa nhãn - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <div class="d-flex align-items-center">
+                    <a href="/labels" class="btn btn-sm btn-outline-secondary me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-pencil text-info me-2"></i>Chỉnh sửa nhãn
+                        </h4>
+                        <p class="text-muted mb-0">Cập nhật thông tin nhãn "{{ label.name }}"</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" action="/labels/{{ label.id }}/edit" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label for="name" class="form-label">
+                            Tên nhãn <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="name" 
+                            name="name" 
+                            value="{{ label.name }}"
+                            placeholder="Ví dụ: Ưu tiên cao, Công việc cá nhân..."
+                            required
+                            maxlength="50"
+                        >
+                        <div class="invalid-feedback">
+                            Vui lòng nhập tên nhãn.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="color" class="form-label">Màu sắc nhãn</label>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <input 
+                                    type="color" 
+                                    class="form-control form-control-color" 
+                                    id="color" 
+                                    name="color" 
+                                    value="{{ label.color }}"
+                                    title="Chọn màu sắc cho nhãn"
+                                >
+                            </div>
+                            <div class="col">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #dc3545; width: 30px; height: 30px;" data-color="#dc3545"></button>
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #0d6efd; width: 30px; height: 30px;" data-color="#0d6efd"></button>
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #198754; width: 30px; height: 30px;" data-color="#198754"></button>
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #ffc107; width: 30px; height: 30px;" data-color="#ffc107"></button>
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #fd7e14; width: 30px; height: 30px;" data-color="#fd7e14"></button>
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #6f42c1; width: 30px; height: 30px;" data-color="#6f42c1"></button>
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #d63384; width: 30px; height: 30px;" data-color="#d63384"></button>
+                                    <button type="button" class="btn btn-sm color-preset" style="background-color: #20c997; width: 30px; height: 30px;" data-color="#20c997"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text">
+                            Chọn màu sắc để dễ nhận biết nhãn trong danh sách công việc.
+                        </div>
+                    </div>
+
+                    <!-- Preview nhãn -->
+                    <div class="mb-4">
+                        <label class="form-label">Xem trước</label>
+                        <div class="border rounded p-3 bg-light">
+                            <span id="label-preview" class="badge rounded-pill px-3 py-2" style="background-color: {{ label.color }}; color: white; font-size: 0.875rem;">
+                                {{ label.name }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/labels" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-info">
+                            <i class="bi bi-check-circle me-2"></i>Cập nhật nhãn
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Thống kê sử dụng nhãn -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-bar-chart text-primary me-2"></i>Thống kê sử dụng
+                </h6>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h5 class="text-primary mb-1">{{ label.tasks|length }}</h5>
+                            <small class="text-muted">Tổng công việc</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h5 class="text-success mb-1">
+                            {% set completed_count = label.tasks | selectattr("status", "equalto", "done") | list | length %}
+                            {{ completed_count }}
+                        </h5>
+                        <small class="text-muted">Đã hoàn thành</small>
+                    </div>
+                </div>
+                {% if label.tasks|length > 0 %}
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Nhãn này đang được sử dụng bởi {{ label.tasks|length }} công việc. 
+                        Việc thay đổi màu sắc sẽ áp dụng cho tất cả công việc có nhãn này.
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('name');
+    const colorInput = document.getElementById('color');
+    const labelPreview = document.getElementById('label-preview');
+    const colorPresets = document.querySelectorAll('.color-preset');
+
+    // Cập nhật preview khi thay đổi tên
+    nameInput.addEventListener('input', function() {
+        const name = this.value.trim() || '{{ label.name }}';
+        labelPreview.textContent = name;
+    });
+
+    // Cập nhật preview khi thay đổi màu
+    colorInput.addEventListener('input', function() {
+        labelPreview.style.backgroundColor = this.value;
+    });
+
+    // Xử lý click vào color presets
+    colorPresets.forEach(preset => {
+        preset.addEventListener('click', function() {
+            const color = this.dataset.color;
+            colorInput.value = color;
+            labelPreview.style.backgroundColor = color;
+        });
+    });
+});
+</script>
+{% endblock %}

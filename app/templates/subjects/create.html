@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo chủ đề mới - Todo List App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <div class="d-flex align-items-center">
+                    <a href="/subjects" class="btn btn-sm btn-outline-secondary me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-folder-plus text-primary me-2"></i>Tạo chủ đề mới
+                        </h4>
+                        <p class="text-muted mb-0">Thêm chủ đề để tổ chức công việc</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <form method="post" action="/subjects/create" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            Tên chủ đề <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="name" 
+                            name="name" 
+                            placeholder="Ví dụ: Công việc, Học tập, Cá nhân..."
+                            required
+                            maxlength="100"
+                        >
+                        <div class="invalid-feedback">
+                            Vui lòng nhập tên chủ đề.
+                        </div>
+                        <div class="form-text">
+                            Tên chủ đề nên ngắn gọn và dễ nhận biết.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <textarea 
+                            class="form-control" 
+                            id="description" 
+                            name="description" 
+                            rows="3"
+                            placeholder="Mô tả chi tiết về chủ đề này (không bắt buộc)"
+                            maxlength="500"
+                        ></textarea>
+                        <div class="form-text">
+                            Mô tả giúp bạn hiểu rõ hơn về mục đích của chủ đề.
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/subjects" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-plus-circle me-2"></i>Tạo chủ đề
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Gợi ý các chủ đề phổ biến -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightbulb text-warning me-2"></i>Gợi ý chủ đề phổ biến
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary suggestion-btn" data-name="Công việc" data-desc="Các nhiệm vụ liên quan đến công việc hàng ngày">
+                        <i class="bi bi-briefcase me-1"></i>Công việc
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success suggestion-btn" data-name="Học tập" data-desc="Các hoạt động học tập và nghiên cứu">
+                        <i class="bi bi-book me-1"></i>Học tập
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info suggestion-btn" data-name="Cá nhân" data-desc="Các việc cá nhân và cuộc sống hàng ngày">
+                        <i class="bi bi-person me-1"></i>Cá nhân
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning suggestion-btn" data-name="Sức khỏe" data-desc="Chăm sóc sức khỏe và tập luyện">
+                        <i class="bi bi-heart me-1"></i>Sức khỏe
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger suggestion-btn" data-name="Mua sắm" data-desc="Danh sách mua sắm và chi tiêu">
+                        <i class="bi bi-cart me-1"></i>Mua sắm
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary suggestion-btn" data-name="Dự án" data-desc="Quản lý các dự án cá nhân hoặc nhóm">
+                        <i class="bi bi-kanban me-1"></i>Dự án
+                    </button>
+                </div>
+                <div class="form-text mt-2">
+                    Nhấp vào gợi ý để tự động điền thông tin.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript để xử lý gợi ý
+document.addEventListener('DOMContentLoaded', function() {
+    const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+    const nameInput = document.getElementById('name');
+    const descInput = document.getElementById('description');
+    
+    suggestionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const name = this.getAttribute('data-name');
+            const desc = this.getAttribute('data-desc');
+            
+            nameInput.value = name;
+            descInput.value = desc;
+            
+            // Focus vào tên để user có thể chỉnh sửa
+            nameInput.focus();
+            nameInput.select();
+        });
+    });
+});
+</script>
+{% endblock %}
