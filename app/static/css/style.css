@@ -43,7 +43,7 @@ body {
 
 .card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
+    /* transform: translateY(-2px); */
 }
 
 .card-header {
@@ -76,7 +76,7 @@ body {
 }
 
 .btn-outline-danger:hover {
-    transform: translateY(-1px);
+    /* transform: translateY(-1px); */
 }
 
 /* ========== FORMS ========== */
@@ -139,7 +139,7 @@ body {
 
 .task-item:hover {
     box-shadow: var(--shadow);
-    transform: translateX(4px);
+    /* transform: translateX(4px); */
 }
 
 .task-item.completed {
@@ -224,7 +224,7 @@ body {
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
+    /* transform: translateY(-4px); */
     box-shadow: var(--shadow-lg);
 }
 
@@ -233,7 +233,7 @@ body {
 }
 
 .stat-card-wrapper:hover {
-    transform: translateY(-3px);
+    /* transform: translateY(-3px); */
 }
 
 .stat-card-wrapper .card-body {
@@ -258,7 +258,7 @@ body {
 }
 
 .hover-card:hover {
-    transform: translateY(-2px);
+    /* transform: translateY(-2px); */
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
